@@ -62,20 +62,43 @@ class Chat extends Component
 
         try {
             $agent = new HomeAgent();
-            $response = $agent->prompt($userMessage);
+            $stream = $agent->stream($userMessage);
 
-            $content = (string) $response;
+            foreach ($stream as $event) {
+                if (isset($event->text)) {
+                    $this->streamedContent .= $event->text;
+                    $this->dispatch('stream-update', content: $this->streamedContent);
+                }
 
-            // Store assistant message
+                if (isset($event->toolCall)) {
+                    $this->activeToolCalls[] = [
+                        'server' => $event->toolCall->server ?? 'unknown',
+                        'tool' => $event->toolCall->name,
+                        'status' => 'running',
+                    ];
+                    $this->dispatch('tool-call', tool: end($this->activeToolCalls));
+                }
+
+                if (isset($event->toolResult)) {
+                    foreach ($this->activeToolCalls as &$call) {
+                        if ($call['tool'] === $event->toolResult->name) {
+                            $call['status'] = 'completed';
+                        }
+                    }
+                    $this->dispatch('tool-result', tool: $event->toolResult->name);
+                }
+            }
+
+            // Store final assistant message
             Message::create([
                 'conversation_id' => $this->conversation->id,
                 'role' => 'assistant',
-                'content' => $content,
+                'content' => $this->streamedContent,
             ]);
 
             $this->messages[] = [
                 'role' => 'assistant',
-                'content' => $content,
+                'content' => $this->streamedContent,
             ];
         } catch (\Throwable $e) {
             $this->messages[] = [

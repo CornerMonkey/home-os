@@ -1,4 +1,7 @@
-<div class="flex h-screen bg-gray-900 text-white">
+<div class="flex h-screen bg-gray-900 text-white"
+     x-data="{ streamedContent: '' }"
+     @stream-update.window="streamedContent = $event.detail.content; $nextTick(() => document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight)">
+
     <!-- Sidebar -->
     <div class="w-64 bg-gray-800 p-4 border-r border-gray-700">
         <h2 class="text-lg font-bold mb-4">Home OS</h2>
@@ -28,7 +31,7 @@
             @if($isStreaming)
                 <div class="flex justify-start">
                     <div class="bg-gray-700 p-3 rounded-lg max-w-3xl">
-                        <p class="text-sm animate-pulse">Thinking...</p>
+                        <p class="text-sm whitespace-pre-wrap" x-text="streamedContent"></p>
                     </div>
                 </div>
             @endif
