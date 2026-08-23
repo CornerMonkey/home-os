@@ -138,6 +138,12 @@ return [
             'key' => env('OPENAI_COMPATIBLE_API_KEY'),
         ],
 
+        'opencode-go' => [
+            'driver' => 'openai-compatible',
+            'url' => env('OPENCODE_GO_URL', 'https://opencode.ai/zen/go/v1/chat/completions'),
+            'key' => env('OPENCODE_GO_API_KEY'),
+        ],
+
         'openrouter' => [
             'driver' => 'openrouter',
             'key' => env('OPENROUTER_API_KEY'),
