@@ -44,7 +44,7 @@ class McpServerController extends Controller
         return response()->json(['data' => $mcpServer]);
     }
 
-    public function destroy(McpServer $mcpServer, McpManager $manager): JsonResponse
+    public function destroy(McpServer $mcpServer, McpManager $manager): \Illuminate\Http\Response
     {
         $manager->remove($mcpServer->id);
 
